@@ -1,9 +1,16 @@
 package com.example.app.ws.shared;
 
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Random;
 
 import org.springframework.stereotype.Component;
+
+import com.example.app.ws.security.SecurityConstants;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class Utils {
@@ -30,4 +37,24 @@ public class Utils {
 		return new String(returnValue);
 	}
 	
+	public boolean hasTokenExpired(String token) {
+		Claims claims  = Jwts.parser()
+		.setSigningKey( SecurityConstants.getToken() )
+		.parseClaimsJws(token).getBody();
+	
+		Date tokenExpiratDate = claims.getExpiration();
+		Date todayDate = new Date();
+		
+		return tokenExpiratDate.before(todayDate);
+		
+	}
+	
+	public String generateToken(String userId) {
+		String token  = Jwts.builder()
+				.setSubject(userId)
+				.setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
+				.signWith(SignatureAlgorithm.HS512, SecurityConstants.getToken())
+				.compact();
+		return token;
+	}
 }

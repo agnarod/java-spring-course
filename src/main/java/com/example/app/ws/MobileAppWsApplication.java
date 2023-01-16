@@ -14,7 +14,6 @@ public class MobileAppWsApplication extends SpringBootServletInitializer {
 		SpringApplication.run(MobileAppWsApplication.class, args);
 	}
 
-
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(MobileAppWsApplication.class);
