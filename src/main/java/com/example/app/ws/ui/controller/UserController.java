@@ -29,6 +29,7 @@ import com.example.app.ws.service.AddressService;
 import com.example.app.ws.service.UserService;
 import com.example.app.ws.shared.dto.AddressDto;
 import com.example.app.ws.shared.dto.UserDto;
+import com.example.app.ws.ui.model.request.PasswordResetRequestModel;
 import com.example.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.example.app.ws.ui.model.response.AddressRest;
 import com.example.app.ws.ui.model.response.ErrorMessages;
@@ -195,5 +196,25 @@ public class UserController {
 		returValue.setOperationResult( isVerified ? RequestOperationStatus.SUCCESS.name() : RequestOperationStatus.ERROR.name());
 		
 		return returValue;
+	}
+	
+	
+	/*
+	 * http://localhost:8080/mobile-app-ws/users/reset-password
+	 */
+	@PostMapping(path = "/reset-password",
+			consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+			produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+	public OperationStatusModel requestPasswordReset(@RequestBody PasswordResetRequestModel passwordResetRequestModel) {
+		OperationStatusModel returnVaue = new OperationStatusModel();
+		
+		boolean operationResult = userService.requestPasswordReset(passwordResetRequestModel.getEmail());
+		
+		returnVaue.setOperationName(RequestOperationName.REQUEST_PASSWORD_RESET.name());
+		String operationStatus = operationResult ? RequestOperationStatus.SUCCESS.name() : RequestOperationStatus.ERROR.name();
+		returnVaue.setOperationResult(operationStatus);
+		
+		return returnVaue;
+		
 	}
 }

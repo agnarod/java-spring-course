@@ -49,10 +49,21 @@ public class Utils {
 		
 	}
 	
-	public String generateToken(String userId) {
+	public String generateToken(String userId, String type) {
+		
+		long expiration_time = 0;
+		switch (type) {
+		case SecurityConstants.PASSWORD_TYPE_TOKEN_STRING:
+			expiration_time = SecurityConstants.PASSWORD_EXPIRATION_TIME;
+			break;
+		default:
+			expiration_time = SecurityConstants.DEFAULT_EXPIRATION_TIME;
+			break;
+		}
+		
 		String token  = Jwts.builder()
 				.setSubject(userId)
-				.setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
+				.setExpiration(new Date(System.currentTimeMillis() + expiration_time))
 				.signWith(SignatureAlgorithm.HS512, SecurityConstants.getToken())
 				.compact();
 		return token;

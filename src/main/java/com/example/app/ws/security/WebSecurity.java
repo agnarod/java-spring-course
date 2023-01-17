@@ -41,8 +41,12 @@ public class WebSecurity{
 		AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 		
 		http.csrf().disable().authorizeHttpRequests()
-		.requestMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL).permitAll()
-		.requestMatchers(HttpMethod.GET, SecurityConstants.VERIFICATION_EMAIL).permitAll()
+		.requestMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
+		.permitAll()
+		.requestMatchers(HttpMethod.GET, SecurityConstants.VERIFICATION_EMAIL)
+		.permitAll()
+		.requestMatchers(HttpMethod.POST, SecurityConstants.RESET_PASSWORD_REQUEST_EMAIL)
+		.permitAll()
 		.anyRequest().authenticated()
 		.and().authenticationManager(authenticationManager)
 		.addFilter(getAuthenticationFilter(authenticationManager))

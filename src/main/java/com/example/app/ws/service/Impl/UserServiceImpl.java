@@ -16,9 +16,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.app.ws.exceptions.UserServiceException;
+import com.example.app.ws.io.entity.PasswordResetTokenEntity;
 import com.example.app.ws.io.entity.UserEntity;
+import com.example.app.ws.io.repositories.PasswordResetTokenRepository;
 import com.example.app.ws.io.repositories.UserRepository;
+import com.example.app.ws.security.SecurityConstants;
 import com.example.app.ws.service.UserService;
+import com.example.app.ws.shared.AmazonSES;
 import com.example.app.ws.shared.Utils;
 import com.example.app.ws.shared.dto.AddressDto;
 import com.example.app.ws.shared.dto.UserDto;
@@ -31,6 +35,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	PasswordResetTokenRepository passwordResetTokenRepository;
 	
 	@Autowired
 	Utils utils;
@@ -61,7 +68,7 @@ public class UserServiceImpl implements UserService {
 		String publicUserId = utils.generateUserId(30);
 		userEntity.setUserId(publicUserId);
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-		userEntity.setEmailVerificationToken( utils.generateToken(publicUserId));
+		userEntity.setEmailVerificationToken( utils.generateToken(publicUserId, SecurityConstants.DEFAULT_TYPE_TOKEN_STRING));
 		userEntity.setEmailVerificationStatus(false);
 		
 		UserEntity storedUserDetails = userRepository.save(userEntity);
@@ -69,7 +76,8 @@ public class UserServiceImpl implements UserService {
 		
 		UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
 		//BeanUtils.copyProperties(storedUserDetails, returnValue);
-		
+		//send email message to user to verify their email address
+		new AmazonSES().verifyEmail(returnValue);
 		return returnValue;
 	}
 	
@@ -182,6 +190,30 @@ public class UserServiceImpl implements UserService {
 				returnValue = true;
 			}
 		}
+		
+		return returnValue;
+	}
+	
+	public boolean requestPasswordReset(String email) {
+		boolean returnValue = false;
+		UserEntity userEntity = userRepository.findByEmail(email);
+		
+		if(userEntity == null) {
+			return returnValue;
+		}
+		
+		String token = utils.generateToken(userEntity.getUserId(), SecurityConstants.PASSWORD_TYPE_TOKEN_STRING);
+		PasswordResetTokenEntity passwordResetTokenEntity = new PasswordResetTokenEntity();
+		passwordResetTokenEntity.setToken(token);
+		passwordResetTokenEntity.setUserDetails(userEntity);
+		
+		passwordResetTokenRepository.save(passwordResetTokenEntity);
+		
+		returnValue = new AmazonSES().sendPasswordResetRequest(
+				userEntity.getFirstName(),
+				userEntity.getEmail(),
+				token);
+		
 		
 		return returnValue;
 	}
