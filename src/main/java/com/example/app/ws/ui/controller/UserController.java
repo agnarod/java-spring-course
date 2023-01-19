@@ -29,6 +29,7 @@ import com.example.app.ws.service.AddressService;
 import com.example.app.ws.service.UserService;
 import com.example.app.ws.shared.dto.AddressDto;
 import com.example.app.ws.shared.dto.UserDto;
+import com.example.app.ws.ui.model.request.PasswordResetModel;
 import com.example.app.ws.ui.model.request.PasswordResetRequestModel;
 import com.example.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.example.app.ws.ui.model.response.AddressRest;
@@ -200,9 +201,9 @@ public class UserController {
 	
 	
 	/*
-	 * http://localhost:8080/mobile-app-ws/users/reset-password
+	 * http://localhost:8080/mobile-app-ws/users/password-reset-request
 	 */
-	@PostMapping(path = "/reset-password",
+	@PostMapping(path = "/password-reset-request",
 			consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
 			produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 	public OperationStatusModel requestPasswordReset(@RequestBody PasswordResetRequestModel passwordResetRequestModel) {
@@ -217,4 +218,24 @@ public class UserController {
 		return returnVaue;
 		
 	}
+
+	/*
+	 * http://localhost:8080/mobile-app-ws/users/password-reset
+	 */
+	@PostMapping(path = "/password-reset",
+			consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+			produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+	public OperationStatusModel passwordReset(@RequestBody PasswordResetModel passwordResetModel) {
+		
+		OperationStatusModel returnVaue = new OperationStatusModel();
+		
+		boolean operationResult = userService.passwordReset(passwordResetModel.getToken(), passwordResetModel.getPassword());
+		
+		returnVaue.setOperationName(RequestOperationName.PASSWORD_RESET.name());
+		String operationStatus = operationResult ? RequestOperationStatus.SUCCESS.name() : RequestOperationStatus.ERROR.name();
+		returnVaue.setOperationResult(operationStatus);
+		
+		return returnVaue;
+	}
+	
 }
