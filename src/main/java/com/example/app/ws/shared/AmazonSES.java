@@ -2,6 +2,9 @@ package com.example.app.ws.shared;
 
 import javax.security.auth.Subject;
 
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
@@ -13,6 +16,8 @@ import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.amazonaws.services.simpleemail.model.SendEmailResult;
 import com.example.app.ws.shared.dto.UserDto;
 
+
+@Service
 public class AmazonSES {
 	// this address must be verified with Amazon SES.
 	final String FROM = "agustin.nmf@gmail.com";
